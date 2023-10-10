@@ -13,9 +13,10 @@ pub async fn wake_with_max(path : web::Path<String>) -> impl Responder {
         Ok(value) => value,
         Err(err) => return HttpResponse::BadRequest().body(err.to_string())
     };
-    //TODO implement string to MAC in own mac_address class
-    magic_packet::send_wol(mac._mac).expect("TODO: panic message");
-    return HttpResponse::Ok().body("Sent magic packet!");
+    return match magic_packet::send_wol(mac) {
+        Ok(_) => HttpResponse::Ok().body("Sent magic packet!"),
+        Err(err) => return HttpResponse::InternalServerError().body(err)
+    };
 }
 
 
