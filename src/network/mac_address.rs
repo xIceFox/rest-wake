@@ -26,6 +26,14 @@ impl IntoIterator for MacAddress6 {
     }
 }
 
+pub fn parse_multiple_strings(mac_addresses: Vec<String>) -> Result<Vec<MacAddress6>, String>{
+    let mut mac_addresses_parsed: Vec<MacAddress6> = Vec::new();
+    for mac_str in mac_addresses {
+        mac_addresses_parsed.push(parse_from_string(mac_str)?)
+    }
+    Ok(mac_addresses_parsed)
+}
+
 fn parse_from_string(mac_str: String) -> Result<MacAddress6, String> {
     let split = mac_str.split(":");
     let mut result: [u8; 6] = [0; 6];

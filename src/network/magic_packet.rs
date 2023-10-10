@@ -5,7 +5,7 @@ use crate::network::mac_address::MacAddress6;
 const MAGIC_HEADER: [u8; 6] = [0xFF; 6];
 const NUMBER_OF_MAC_REPETITIONS: usize = 16;
 
-pub fn send_wol(mac : MacAddress6) -> Result<(), String> {
+pub fn send_wol_packet(mac : MacAddress6) -> Result<(), String> {
     let mut mac_vec : Vec<MacAddress6> = Vec::new();
     mac_vec.push(mac);
     send_wol_packets(mac_vec)?;
