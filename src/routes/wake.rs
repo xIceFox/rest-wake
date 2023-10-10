@@ -1,5 +1,6 @@
 use actix_web::{get, post, Responder, HttpResponse, web};
 use crate::network::magic_packet;
+use crate::network::mac_address;
 
 #[get("")]
 pub async fn info_message() -> impl Responder {
@@ -8,10 +9,13 @@ pub async fn info_message() -> impl Responder {
 
 #[post("/{mac_addr}")]
 pub async fn wake_with_max(path : web::Path<String>) -> impl Responder {
-    let mac = path.into_inner();
+    let mac = match mac_address::MacAddress6::try_from(path.into_inner()) {
+        Ok(value) => value,
+        Err(err) => return HttpResponse::BadRequest().body(err.to_string())
+    };
     //TODO implement string to MAC in own mac_address class
-    magic_packet::send_wol([0x11, 0x11, 0x11, 0x11, 0x11, 0x11]).expect("TODO: panic message");
-    return HttpResponse::NotImplemented();
+    magic_packet::send_wol(mac._mac).expect("TODO: panic message");
+    return HttpResponse::Ok().body("Sent magic packet!");
 }
 
 
