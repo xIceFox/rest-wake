@@ -18,6 +18,8 @@ async fn main() -> std::io::Result<()> {
                     .service(routes::wake::wake_single)
                     .service(routes::wake::wake_multiple)
                 )
+                .service(web::scope("/device")
+                )
             )
     })
         .bind(("127.0.0.1", 8080))?.run().await
