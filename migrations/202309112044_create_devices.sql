@@ -1,5 +1,0 @@
-CREATE TABLE IF NOT EXISTS devices
-(
-    name VARCHAR(30) PRIMARY KEY,
-    mac  CHAR(17) UNIQUE
-)
