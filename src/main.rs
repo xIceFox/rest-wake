@@ -34,23 +34,23 @@ async fn connect_db(db_url: &String) -> Result<DatabaseConnection, DbErr> {
 async fn get_settings() -> HashMap<String, String> {
     dotenv().ok();
 
-    let default_settings = HashMap::from([
+    let default_settings = [
         ("DATABASE_URL", "sqlite:db/db.sqlite"),
         ("IP", "localhost"),
         ("PORT", "8080")
-    ]);
+    ];
 
     let mut settings: HashMap<String, String> = HashMap::new();
 
-    for (key, value) in default_settings.into_iter() {
+    for (key, value) in default_settings {
         match env::var(key) {
             Ok(env_var) => {
-                settings.insert(String::from(key), env_var.clone());
+                settings.insert(String::from(key), env_var);
             }
             Err(_) => {
                 println!("{} not found in environment variables. Defaulting to: \"{}\"", key, value);
                 settings.insert(String::from(key), String::from(value));
-                env::set_var(&key, &value);
+                env::set_var(key, value);
             }
         };
     }
@@ -72,7 +72,7 @@ async fn main() -> std::io::Result<()> {
     let port = settings.get("PORT")
         .expect("Port is not set!")
         .parse::<u16>()
-        .expect("Port could not be parsed");
+        .expect("Port could not be parsed!");
 
     env_logger::builder()
         .init();
