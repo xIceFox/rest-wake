@@ -37,7 +37,8 @@ async fn get_settings() -> HashMap<String, String> {
     let default_settings = [
         ("DATABASE_URL", "sqlite:db/db.sqlite"),
         ("IP", "localhost"),
-        ("PORT", "8080")
+        ("PORT", "8080"),
+        ("RUST_LOG", "INFO")
     ];
 
     let mut settings: HashMap<String, String> = HashMap::new();
@@ -93,6 +94,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::scope("/api")
                 .service(web::scope("/wake")
                     .service(routes::wake::wake_single)
+                    .service(routes::wake::wake_with_name)
                     .service(routes::wake::wake_multiple)
                 )
                 .service(web::scope("/device")
