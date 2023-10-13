@@ -1,9 +1,12 @@
+use std::collections::HashMap;
+use std::env;
 use std::path::Path;
 
 use actix_web::{App, HttpServer, middleware::Logger, middleware::NormalizePath, web};
-use sea_orm::{Database, DatabaseConnection, DbErr};
-
+use dotenv::dotenv;
+use log::LevelFilter;
 use migration::{Migrator, MigratorTrait};
+use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr};
 
 mod routes;
 mod network;
@@ -13,21 +16,73 @@ pub struct State {
     db_conn: DatabaseConnection,
 }
 
-const IP_ADDR: &str = "127.0.0.1";
-const PORT: u16 = 8080;
+async fn connect_db(db_url: &String) -> Result<DatabaseConnection, DbErr> {
+    if !Path::new("db").exists() {
+        std::fs::create_dir("db").expect("Could not create db folder!");
+    }
+
+    let mut options = ConnectOptions::new(&format!("{}?mode=rwc", db_url));
+    options.sqlx_logging_level(LevelFilter::Debug);
+
+    let conn = Database::connect(options).await?;
+
+    Migrator::up(&conn, None).await.unwrap();
+
+    Ok(conn)
+}
+
+async fn get_settings() -> HashMap<String, String> {
+    dotenv().ok();
+
+    let default_settings = HashMap::from([
+        ("DATABASE_URL", "sqlite:db/db.sqlite"),
+        ("IP", "localhost"),
+        ("PORT", "8080")
+    ]);
+
+    let mut settings: HashMap<String, String> = HashMap::new();
+
+    for (key, value) in default_settings.into_iter() {
+        match env::var(key) {
+            Ok(env_var) => {
+                settings.insert(String::from(key), env_var.clone());
+            }
+            Err(_) => {
+                println!("{} not found in environment variables. Defaulting to: \"{}\"", key, value);
+                settings.insert(String::from(key), String::from(value));
+                env::set_var(&key, &value);
+            }
+        };
+    }
+
+    if cfg!(debug_assertions) {
+        println!("Debug binary detected, setting LogLevel to DEBUG!");
+        env::set_var("RUST_LOG", "DEBUG");
+    }
+
+    settings
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "info");
-    std::env::set_var("RUST_BACKTRACE", "1");
-    env_logger::init();
+    let settings = get_settings().await;
 
-    let conn = match connect_db().await {
+    let db_url = settings.get("DATABASE_URL").expect("Database URL is not set!");
+    let ip = settings.get("IP").expect("IP is not set!");
+    let port = settings.get("PORT")
+        .expect("Port is not set!")
+        .parse::<u16>()
+        .expect("Port could not be parsed");
+
+    env_logger::builder()
+        .init();
+
+    let conn = match connect_db(db_url).await {
         Ok(value) => value,
         Err(err) => panic!("Error on database connection: {}", err)
     };
 
-    log::info!("Starting HTTP server at http://127.0.0.1:8080");
+    log::info!("Starting HTTP server at http://{ip}:{port}");
 
     HttpServer
     ::new(move || {
@@ -46,18 +101,5 @@ async fn main() -> std::io::Result<()> {
                 )
             )
     })
-        .bind((IP_ADDR, PORT))?.run().await
-}
-
-async fn connect_db() -> Result<DatabaseConnection, DbErr> {
-    let db_url = "sqlite:db/db.sqlite";
-
-    if !Path::new("db").exists() {
-        std::fs::create_dir("db").expect("Could not create db folder!");
-    }
-
-    let conn = Database::connect(&format!("{}?mode=rwc", db_url)).await?;
-    Migrator::up(&conn, None).await.unwrap();
-
-    Ok(conn)
+        .bind((String::from(ip), port))?.run().await
 }
