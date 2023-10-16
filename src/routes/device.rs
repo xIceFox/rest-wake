@@ -1,15 +1,9 @@
 use actix_web::{get, post, put, delete, HttpResponse, Responder, web};
-use sea_orm::{ActiveModelTrait, EntityTrait, IntoActiveModel, PaginatorTrait, Set};
-use serde::Deserialize;
+use sea_orm::{ActiveModelTrait, EntityTrait, IntoActiveModel, Set};
 use crate::models::device;
 use crate::models::prelude::{Device};
 
 use crate::State;
-
-#[derive(Deserialize)]
-pub struct PageInfo {
-    page: Option<u64>,
-}
 
 #[get("/{device_name}")]
 pub async fn get_device(db: web::Data<State>, path: web::Path<String>) -> impl Responder {
@@ -31,23 +25,6 @@ pub async fn get_device(db: web::Data<State>, path: web::Path<String>) -> impl R
             Err(_) => return HttpResponse::InternalServerError().body("Error on serialization!")
         }
     )
-}
-
-#[get("")]
-pub async fn get_devices(db: web::Data<State>, info: web::Query<PageInfo>) -> impl Responder {
-    let page = info.page.unwrap_or(0);
-    let paginator = Device::find()
-        .paginate(&db.db_conn, 50);
-
-    let devices = match paginator.fetch_page(page).await{
-        Ok(value) => value,
-        Err(_) => return HttpResponse::InternalServerError().body("Internal Server Error!")
-    };
-
-    match serde_json::to_string(&devices){
-        Ok(value) => HttpResponse::Ok().body(value),
-        Err(_) => HttpResponse::InternalServerError().body("Deserialization error!")
-    }
 }
 
 #[post("")]
