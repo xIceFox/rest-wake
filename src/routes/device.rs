@@ -76,8 +76,8 @@ pub async fn update_device(db: web::Data<State>, mut updated_device: web::Json<d
 
 #[delete("/{device_name}")]
 pub async fn delete_device(db: web::Data<State>, path: web::Path<String>) -> impl Responder {
-    return match Device::delete_by_id(path.into_inner()).exec(&db.db_conn).await {
+    match Device::delete_by_id(path.into_inner()).exec(&db.db_conn).await {
         Ok(_) => HttpResponse::Ok().body("Deleted device!"),
         Err(_) => return HttpResponse::InternalServerError().body("Deletion failed!")
-    };
+    }
 }
