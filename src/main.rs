@@ -104,6 +104,9 @@ async fn main() -> std::io::Result<()> {
                     .service(routes::device::update_device)
                     .service(routes::device::delete_device)
                 )
+                .service(web::scope("/devices")
+                    .service(routes::devices::get_devices)
+                )
             )
     })
         .bind((String::from(ip), port))?.run().await
