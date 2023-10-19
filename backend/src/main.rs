@@ -17,8 +17,8 @@ pub struct State {
 }
 
 async fn connect_db(db_url: &String) -> Result<DatabaseConnection, DbErr> {
-    if !Path::new("db").exists() {
-        std::fs::create_dir("db").expect("Could not create db folder!");
+    if !Path::new("../db").exists() {
+        std::fs::create_dir("../db").expect("Could not create db folder!");
     }
 
     let mut options = ConnectOptions::new(&format!("{}?mode=rwc", db_url));
