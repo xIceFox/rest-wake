@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 use std::env;
+use std::fs::create_dir_all;
 use std::path::Path;
 
 use actix_web::{App, HttpServer, middleware::Logger, middleware::NormalizePath, web};
 use dotenv::dotenv;
 use log::LevelFilter;
 use migration::{Migrator, MigratorTrait};
-use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr};
+use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr, RuntimeErr};
 
 mod routes;
 mod network;
@@ -17,8 +18,14 @@ pub struct State {
 }
 
 async fn connect_db(db_url: &String) -> Result<DatabaseConnection, DbErr> {
-    if !Path::new("../db").exists() {
-        std::fs::create_dir("../db").expect("Could not create db folder!");
+    let db_url_parts = db_url.split(":").collect::<Vec<&str>>();
+    if db_url_parts.len() != 2 || db_url_parts[0] != "sqlite" {
+        return Err(DbErr::Conn(RuntimeErr::Internal(String::from("Wrong database url specified, should be like: 'sqlite:[filesystem_path]'"))));
+    }
+
+    let folder_path = Path::new(db_url_parts[1]).parent().unwrap();
+    if !folder_path.exists() {
+        create_dir_all(folder_path).expect("Folders to db could not be created! Try to create the folder path yourself!");
     }
 
     let mut options = ConnectOptions::new(&format!("{}?mode=rwc", db_url));
