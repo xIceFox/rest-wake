@@ -25,8 +25,8 @@ jobs:
       continue-on-error: false
       with:
         path: |
-          ~/.cargo/registry/
-          backend/target/
+          ~/.cargo
+          backend/target
         key: ${{ runner.os }}-cargo-${{ hashFiles('backend/Cargo.lock') }}
         restore-keys: ${{ runner.os }}-cargo-
 
