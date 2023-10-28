@@ -20,6 +20,16 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Set up cargo cache
+      uses: actions/cache@v3
+      continue-on-error: false
+      with:
+        path: |
+          ~/.cargo/registry/
+          backend/target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('backend/Cargo.lock') }}
+        restore-keys: ${{ runner.os }}-cargo-
+
     - name: Build
       working-directory: backend
       run: cargo build --release
@@ -36,4 +46,6 @@ jobs:
       uses: actions/upload-artifact@v3.1.3
       with:
           name: rest-wake-${{env.HOST_SUFFIX}}
-          path: backend/target/release/rest-wake[.exe]
+          path: |
+            backend/target/release/rest-wake
+            backend/target/release/rest-wake.exe
