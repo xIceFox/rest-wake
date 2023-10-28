@@ -15,6 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build
+      working-directory: backend
       run: cargo build --release --verbose
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.3
