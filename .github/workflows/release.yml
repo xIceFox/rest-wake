@@ -27,7 +27,7 @@ jobs:
         path: |
           ~/.cargo/registry/
           backend/target/
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ runner.os }}-cargo-${{ hashFiles('backend/Cargo.lock') }}
         restore-keys: ${{ runner.os }}-cargo-
 
     - name: Build
