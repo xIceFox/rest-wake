@@ -3,6 +3,8 @@ name: Rust
 on:
   push:
     branches: [ "main", "pipeline/create-release-pipeline" ]
+    paths:
+      - 'backend/**'
   pull_request:
     branches: [ "main" ]
 
@@ -42,7 +44,9 @@ jobs:
     - name: Get host information
       shell: bash
       run: >
-        echo "HOST_SUFFIX=$(rustc -vV | grep 'host:' | awk -F 'host: ' '{print $2}')" >> $GITHUB_ENV
+        HOST_SUFFIX=$(rustc -vV | grep 'host:' | awk -F 'host: ' '{print $2}')
+        echo "HOST_SUFFIX=$HOST_SUFFIX" >> $GITHUB_ENV
+        
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.3
