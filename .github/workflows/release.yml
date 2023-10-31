@@ -39,6 +39,7 @@ jobs:
       run: cargo test
 
     - name: Get host information
+      shell: bash
       run: >
         echo "HOST_SUFFIX=$(rustc -vV | grep 'host:' | awk -F 'host: ' '{print $2}')" >> $GITHUB_ENV
 
