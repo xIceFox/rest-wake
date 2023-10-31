@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
 
     steps:
     - uses: actions/checkout@v3
@@ -30,13 +30,14 @@ jobs:
         key: ${{ runner.os }}-cargo-${{ hashFiles('backend/Cargo.lock') }}
         restore-keys: ${{ runner.os }}-cargo-
 
-    - name: Build
+    - name: Build rest-wake
       working-directory: backend
       run: cargo build --release
 
-    - name: Test
-      working-directory: backend
-      run: cargo test
+    # implement if tests in the project are created
+    #- name: Test rest-wake
+    #  working-directory: backend
+    #  run: cargo test
 
     - name: Get host information
       shell: bash
