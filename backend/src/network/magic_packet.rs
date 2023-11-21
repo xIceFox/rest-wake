@@ -6,8 +6,7 @@ const MAGIC_HEADER: [u8; 6] = [0xFF; 6];
 const NUMBER_OF_MAC_REPETITIONS: usize = 16;
 
 pub fn send_wol_packet(mac : MacAddress6) -> Result<(), String> {
-    let mut mac_vec : Vec<MacAddress6> = Vec::new();
-    mac_vec.push(mac);
+    let mac_vec : Vec<MacAddress6> = vec![mac];
     send_wol_packets(mac_vec)?;
     Ok(())
 }
@@ -33,5 +32,5 @@ pub fn craft_magic_packet(mac : MacAddress6) -> Vec<u8> {
         .flatten()
         .collect::<Vec<u8>>());
 
-    return packet;
+    packet
 }

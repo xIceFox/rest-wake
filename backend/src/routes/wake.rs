@@ -13,10 +13,10 @@ pub async fn wake_single(path: web::Path<String>) -> impl Responder {
         Ok(value) => value,
         Err(err) => return HttpResponse::BadRequest().body(err.to_string())
     };
-    return match magic_packet::send_wol_packet(mac) {
+    match magic_packet::send_wol_packet(mac) {
         Ok(_) => HttpResponse::Ok().body("Magic packet successfully sent!"),
-        Err(err) => return HttpResponse::InternalServerError().body(err)
-    };
+        Err(err) => HttpResponse::InternalServerError().body(err)
+    }
 }
 
 #[post("/mac")]
@@ -25,10 +25,10 @@ pub async fn wake_multiple(mac_addresses: web::Json<Vec<String>>) -> impl Respon
         Ok(value) => value,
         Err(err) => return HttpResponse::BadRequest().body(err)
     };
-    return match magic_packet::send_wol_packets(mac_addresses_parsed) {
+    match magic_packet::send_wol_packets(mac_addresses_parsed) {
         Ok(_) => HttpResponse::Ok().body("Magic packets successfully sent!"),
-        Err(err) => return HttpResponse::InternalServerError().body(err)
-    };
+        Err(err) => HttpResponse::InternalServerError().body(err)
+    }
 }
 
 #[post("/device/{device_name}")]
@@ -48,10 +48,10 @@ pub async fn wake_with_name(db: web::Data<State>, path: web::Path<String>) -> im
         Ok(value) => value,
         Err(err) => return HttpResponse::InternalServerError().body(err)
     };
-    return match magic_packet::send_wol_packet(mac.clone()) {
+    match magic_packet::send_wol_packet(mac.clone()) {
         Ok(_) => HttpResponse::Ok().body(format!("Magic packet successfully sent to {mac}!")),
-        Err(err) => return HttpResponse::InternalServerError().body(err)
-    };
+        Err(err) => HttpResponse::InternalServerError().body(err)
+    }
 }
 
 #[post("/devices")]
@@ -68,7 +68,7 @@ pub async fn wake_multiple_with_name(db: web::Data<State>, device_names: web::Js
         }
     };
 
-    if devices.len() == 0 {
+    if devices.is_empty() {
         return HttpResponse::NotFound().body("None of the devices found!");
     }
 
@@ -83,15 +83,15 @@ pub async fn wake_multiple_with_name(db: web::Data<State>, device_names: web::Js
         })
     }
 
-    return match magic_packet::send_wol_packets(mac_addresses) {
+    match magic_packet::send_wol_packets(mac_addresses) {
         Ok(_) => {
             if not_all_found {
                 return HttpResponse::PartialContent().body("Not all devices were found! Sent magic packets to all found devices!");
             }
-            HttpResponse::Ok().body(format!("Magic packets successfully sent to devices!"))
+            HttpResponse::Ok().body("Magic packets successfully sent to devices!")
         }
-        Err(err) => return HttpResponse::InternalServerError().body(err)
-    };
+        Err(err) => HttpResponse::InternalServerError().body(err)
+    }
 }
 
 
