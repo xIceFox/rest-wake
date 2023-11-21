@@ -18,7 +18,7 @@ pub struct State {
 }
 
 async fn connect_db(db_url: &String) -> Result<DatabaseConnection, DbErr> {
-    let db_url_parts = db_url.split(":").collect::<Vec<&str>>();
+    let db_url_parts = db_url.split(':').collect::<Vec<&str>>();
     if db_url_parts.len() != 2 || db_url_parts[0] != "sqlite" {
         return Err(DbErr::Conn(RuntimeErr::Internal(String::from("Wrong database url specified, should be like: 'sqlite:[filesystem_path]'"))));
     }
@@ -28,7 +28,7 @@ async fn connect_db(db_url: &String) -> Result<DatabaseConnection, DbErr> {
         create_dir_all(folder_path).expect("Folders to db could not be created! Try to create the folder path yourself!");
     }
 
-    let mut options = ConnectOptions::new(&format!("{}?mode=rwc", db_url));
+    let mut options = ConnectOptions::new(format!("{}?mode=rwc", db_url));
     options.sqlx_logging_level(LevelFilter::Debug);
 
     let conn = Database::connect(options).await?;

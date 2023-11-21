@@ -30,10 +30,10 @@ pub async fn get_device(db: web::Data<State>, path: web::Path<String>) -> impl R
 #[post("")]
 pub async fn create_device(db: web::Data<State>, mut device: web::Json<device::Model>) -> impl Responder {
     device.0.mac = device.0.mac.to_uppercase();
-    return match device.0.into_active_model().insert(&db.db_conn).await {
+    match device.0.into_active_model().insert(&db.db_conn).await {
         Ok(_) => HttpResponse::Ok().body("Inserted device!"),
-        Err(_) => return HttpResponse::InternalServerError().body("Insert failed!")
-    };
+        Err(_) => HttpResponse::InternalServerError().body("Insert failed!")
+    }
 }
 
 #[put("")]
@@ -78,6 +78,6 @@ pub async fn update_device(db: web::Data<State>, mut updated_device: web::Json<d
 pub async fn delete_device(db: web::Data<State>, path: web::Path<String>) -> impl Responder {
     match Device::delete_by_id(path.into_inner()).exec(&db.db_conn).await {
         Ok(_) => HttpResponse::Ok().body("Deleted device!"),
-        Err(_) => return HttpResponse::InternalServerError().body("Deletion failed!")
+        Err(_) => HttpResponse::InternalServerError().body("Deletion failed!")
     }
 }

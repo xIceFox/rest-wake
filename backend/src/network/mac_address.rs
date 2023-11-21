@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MacAddress6([u8; 6]);
 
-impl Into<[u8; 6]> for MacAddress6 {
-    fn into(self) -> [u8; 6] {
-        self.0
+impl From<MacAddress6> for [u8; 6] {
+    fn from(val: MacAddress6) -> Self {
+        val.0
     }
 }
 
@@ -48,18 +48,18 @@ pub fn parse_multiple_strings(mac_addresses: Vec<String>) -> Result<Vec<MacAddre
 }
 
 fn parse_from_string(mac_str: String) -> Result<MacAddress6, String> {
-    let split = mac_str.split(":");
+    let split = mac_str.split(':');
     let mut result: [u8; 6] = [0; 6];
     if split.clone().count() != 6 {
-        return Err("Invalid block count!")?;
+        Err("Invalid block count!")?;
     }
     for enumeration in split.enumerate() {
         let (index, block) = enumeration;
         if block.len() != 2 {
-            return Err(format!("Wrong block size, in block: [{}]. Length needs to be 2!", block))?;
+            Err(format!("Wrong block size, in block: [{}]. Length needs to be 2!", block))?;
         }
         result[index] = u8::from_str_radix(block, 16)
-            .map_err(|err | err.to_string())?
+            .map_err(|err| err.to_string())?
     }
 
     Ok(MacAddress6(result))
