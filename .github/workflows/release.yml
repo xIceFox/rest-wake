@@ -43,7 +43,7 @@ jobs:
 
     - name: Get host information
       shell: bash
-      run: >
+      run: |
         HOST_SUFFIX=$(rustc -vV | grep 'host:' | awk -F 'host: ' '{print $2}')
         echo "HOST_SUFFIX=$HOST_SUFFIX" >> $GITHUB_ENV
         
