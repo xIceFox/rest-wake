@@ -1,6 +1,6 @@
 [package]
 name = "rest-wake"
-version = "1.0.0"
+version = "1.0.2"
 edition = "2021"
 authors = ["Niklas Krebs", "Moritz Putzenlechner"]
 description = "RestAPI to start local network devices via WakeOnLan protocol"
