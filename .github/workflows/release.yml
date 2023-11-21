@@ -1,7 +1,6 @@
 name: Rust
 
 on:
-  workflow_dispatch:
   push:
     branches: [ "main", "pipeline/create-release-pipeline" ]
     paths:
