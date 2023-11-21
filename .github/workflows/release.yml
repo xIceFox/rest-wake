@@ -45,13 +45,14 @@ jobs:
       shell: bash
       run: |
         HOST_SUFFIX=$(rustc -vV | grep 'host:' | awk -F 'host: ' '{print $2}')
+        PROJECT_VERSION=$(cargo metadata --manifest-path backend/Cargo.toml --format-version=1 --no-deps | jq '.packages[0].version' | tr -d '"')
         echo "HOST_SUFFIX=$HOST_SUFFIX" >> $GITHUB_ENV
-        
+        echo "PROJECT_VERSION=$PROJECT_VERSION" >> $GITHUB_ENV
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.3
       with:
-          name: rest-wake-${{env.HOST_SUFFIX}}
+          name: rest-wake-${{env.PROJECT_VERSION}}-${{env.HOST_SUFFIX}}
           path: |
             backend/target/release/rest-wake
             backend/target/release/rest-wake.exe
